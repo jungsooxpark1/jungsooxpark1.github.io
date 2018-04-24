@@ -1,34 +1,156 @@
-<?php
-
-mysql_connect("192.168.1.151:3000","root","");
-mysql_select_db("v-u-a-p");
-
-if(isset($_POST['submit']))
-{
-	$name = $_FILES['file']['name'];
-	$temp = $_FILES['file']['tmp_name'];
-	
-	move_uploaded_file($temp,"uploaded/".$name);
-	$url = "http://192.168.1.151:3000/uploaded/$name";
-	mysql_query("INSERT INTO `videos` VALUE ('','$name','$url')");
-}
-
-?>
-<!doctype html>
+<!DOCTYPE html>
 <html>
+
 <head>
-<meta charset="utf-8">
-<title>Video Upload And Playback Tutorial</title>
+    <meta charset="utf-8">
+    <title>One Roof</title>
+    <link rel="icon" href="img/icon.png" type="image/x-icon"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="mobile-web-app-capable" content="yes"> 
+  <meta name="apple-mobile-web-app-capable" content="yes"> 
+  <!-- <meta name="viewport" content="width=320; user-scalable=no" /> -->
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8"> 
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> 
+ 
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:100,300,400,500,700" rel="stylesheet">
+  <script src="dist/easytimer.min.js"></script> 
+  <link rel="stylesheet" type="text/css" href="css/styles.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://cdn.webrtc-experiment.com/RecordRTC.js"></script>
+  <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 </head>
 
 <body>
+ <!--  <button onclick="myFunction()">hmm</button> -->
+  <div id="bg"><img src="img/lock1.png" width="360px" height="640px" />
+  <!-- <form action="server.cgi" method="post" enctype="multipart/form-data"> -->
+      <span id="clockbox" class="top"></span>
+      <div class="sub"><span id="day"></span><span id="comma">, </span><span id="mon"></span> <span id="date"></span></div>
 
-<a href="videos.php">Videos</a>
-<form action="index.php" method="POST" enctype="multipart/form-data">
-	<input type="file" name="file" />
-    <input type="submit" name="submit" value="Upload!" />
-</form>
+    <form method="post" enctype="multipart/form-data" action="camera.php">
+      <input type="file" id="camcorder" name="camcorder" capture="camcorder" accept="video/*" class="inputfile" />
+      <label for="camcorder"><div id="logo"><img src="img/icon.png" width="auto" height="16"></div><div id="title">One Roof  ·  <div id="title2">today</div></div><div id="text">Share today's happiest moment with family</div><div id="text2">Tap to record a video</div><div id="heart"><img src="img/5.png" width="42" height="auto"></div></label>
+      <video id="mov"></video>
+      <input type="submit" value="SEND" class="sendClass"/>
+      <label for="submit"><div id="send">SEND</div></label>
+    </form>
+
+</div> 
+  
+    
+<script>
+$(document).ready(function(){ 
+    if (!('url' in window) && ('webkitURL' in window)) {
+        // var URL = window.URL || window.webkitURL;
+        window.URL = window.webkitURL;
+    }
+ 
+    $('#camcorder').change(function(e){ 
+        $('#mov').attr('src', URL.createObjectURL(e.target.files[0]));
+    // var fileName = $("e.target.files[0]").val();
+
+    if($("files[0]").val()) { // returns true if the string is not empty
+          alert("selected");
+      } else { // no file was selected
+          // alert("no file selected");
+          $('#mov').css("top","0px");
+          $('#send').css("display","block"); 
+      } 
+    });
+
+});
+
+// var input = document.querySelector('input[type=file]'); // see Example 4
+
+// input.onchange = function () {
+//   var file = input.files[0];
+
+//   upload(file);
+//   drawOnCanvas(file);   // see Example 6
+//   displayAsImage(file); // see Example 7
+// };
+
+// function upload(file) {
+//   var form = new FormData(),
+//       xhr = new XMLHttpRequest();
+
+//   form.append('image', file);
+//   xhr.open('post', 'server.php', true);
+//   xhr.send(form);
+// }
+
+
+function drawOnCanvas(file) {
+  var reader = new FileReader();
+
+  reader.onload = function (e) {
+    var dataURL = e.target.result,
+        c = document.querySelector('canvas'), // see Example 4
+        ctx = c.getContext('2d'),
+        img = new Image();
+
+    img.onload = function() {
+      c.width = img.width;
+      c.height = img.height;
+      ctx.drawImage(img, 0, 0);
+    };
+
+    img.src = dataURL;
+  };
+
+  reader.readAsDataURL(file);
+}
+
+// NY time
+    function GetClock(){
+      var d=new Date();
+      var nhour=d.getHours(),nmin=d.getMinutes(),ap;
+      if(nhour==0){ap=" AM";nhour=12;}
+      else if(nhour<12){ap=" AM";}
+      else if(nhour==12){ap=" PM";}
+      else if(nhour>12){ap=" PM";nhour-=12;} 
+      if(nmin<=9) nmin="0"+nmin;
+
+      document.getElementById('clockbox').innerHTML=""+nhour+":"+nmin+"";
+      // document.getElementById('clockbox2').innerHTML=""+nhour-1+":"+nmin+ap+""; 
+    }
+
+    window.onload=function(){
+      GetClock();
+      setInterval(GetClock,5000);
+
+    }
+
+
+// getDay()
+
+// <p id="day"></p>
+  var day = new Date();
+  var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  document.getElementById("day").innerHTML = days[day.getDay()];
+
+
+// getMonth()
+
+// <p id="mon"></p>
+    var month = new Date();
+    var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    document.getElementById("mon").innerHTML = months[month.getMonth()];
+
+// getDate()
+
+// <p id="date"></p>
+    var date = new Date();
+    document.getElementById("date").innerHTML = date.getDate();
  
 
+
+</script>
+
 </body>
+<html>
+  
+  
 </html>
